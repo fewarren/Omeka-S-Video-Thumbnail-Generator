@@ -1,0 +1,1 @@
+# Omeka-S-Video-Thumbnail-Generator
