@@ -113,6 +113,7 @@ class VideoThumbnail implements MutableIngesterInterface
             $tempFileObj->setTempPath($tempFile);
             
             $media->setHasThumbnails(true);
+            $fileManager->storeThumbnails($tempFileObj, $media);
             
             // Store frame data for later use
             $media->setData([
