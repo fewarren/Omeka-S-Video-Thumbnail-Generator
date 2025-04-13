@@ -113,7 +113,26 @@ class VideoThumbnail implements MutableIngesterInterface
             $tempFileObj->setTempPath($tempFile);
             
             $media->setHasThumbnails(true);
-            $fileManager->storeThumbnails($tempFileObj, $media);
+class VideoThumbnail {
+    // ... other class properties and methods
+
+    public function __construct(TempFileFactory $tempFileFactory, $settings, VideoFrameExtractor $videoFrameExtractor, \Omeka\File\Manager $fileManager)
+    {
+        $this->tempFileFactory = $tempFileFactory;
+        $this->settings = $settings;
+        $this->videoFrameExtractor = $videoFrameExtractor;
+        $this->fileManager = $fileManager;
+    }
+
+    public function extractAndSetDefaultThumbnail($tempFileObj, $media)
+    {
+        // ... preceding code
+
+        $this->fileManager->storeThumbnails($tempFileObj, $media);
+
+        // ... following code
+    }
+}
             
             // Store frame data for later use
             $media->setData([
