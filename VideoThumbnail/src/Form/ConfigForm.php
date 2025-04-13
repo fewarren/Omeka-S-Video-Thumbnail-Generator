@@ -43,7 +43,7 @@ class ConfigForm extends Form
             'name' => 'videothumbnail_default_frame',
             'type' => Number::class,
             'options' => [
-                'label' => 'Default Frame Position (%)', // @translate
+                'label' => 'Default Frame Position (% of video duration)', // @translate
                 'info' => 'Default position for thumbnail extraction as percentage of video duration (0-100)', // @translate
             ],
             'attributes' => [
