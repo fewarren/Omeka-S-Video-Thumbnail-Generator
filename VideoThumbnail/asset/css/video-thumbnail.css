@@ -1,0 +1,148 @@
+/* Video Thumbnail Styles */
+
+/* Frame selector */
+.video-thumbnail-wrapper {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 20px;
+}
+
+.video-info {
+    flex: 1;
+    min-width: 300px;
+}
+
+.frame-selector {
+    flex: 2;
+    min-width: 500px;
+}
+
+.frames-container {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 15px;
+}
+
+.frame-option {
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    padding: 8px;
+    width: calc(33.33% - 15px);
+    min-width: 200px;
+    background: #f9f9f9;
+    transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.frame-option:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.frame-image {
+    width: 100%;
+    height: 120px;
+    overflow: hidden;
+    margin-bottom: 8px;
+}
+
+.frame-image img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: center;
+}
+
+.frame-info {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.frame-time {
+    font-size: 0.9em;
+    color: #666;
+}
+
+.select-frame {
+    padding: 4px 10px;
+    background: #4d888f;
+    color: white;
+    border: none;
+    border-radius: 3px;
+    cursor: pointer;
+    font-size: 0.85em;
+}
+
+.select-frame:hover {
+    background: #5b9aa8;
+}
+
+.current-thumbnail {
+    max-width: 300px;
+    border: 1px solid #ddd;
+    padding: 5px;
+    background: #fff;
+}
+
+.current-thumbnail img {
+    width: 100%;
+    height: auto;
+}
+
+/* Loading overlay */
+#video-thumbnail-loading {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(255, 255, 255, 0.8);
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+}
+
+.loader {
+    border: 5px solid #f3f3f3;
+    border-top: 5px solid #3498db;
+    border-radius: 50%;
+    width: 50px;
+    height: 50px;
+    animation: spin 2s linear infinite;
+    margin-bottom: 15px;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+/* Responsive adjustments */
+@media screen and (max-width: 768px) {
+    .frame-option {
+        width: calc(50% - 15px);
+    }
+}
+
+@media screen and (max-width: 480px) {
+    .frame-option {
+        width: 100%;
+    }
+}
+
+/* Admin form tab */
+.video-thumbnail-tab {
+    margin-top: 20px;
+    padding: 15px;
+    border: 1px solid #ddd;
+    background: #f9f9f9;
+    border-radius: 4px;
+}
+
+.video-thumbnail-info {
+    margin-top: 10px;
+    font-style: italic;
+    color: #666;
+}
