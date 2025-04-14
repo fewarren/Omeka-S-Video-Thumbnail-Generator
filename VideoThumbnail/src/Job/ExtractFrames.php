@@ -21,6 +21,12 @@ class ExtractFrames extends AbstractJob
         $ffmpegPath = $settings->get('videothumbnail_ffmpeg_path', '/usr/bin/ffmpeg');
         $defaultFramePercent = $settings->get('videothumbnail_default_frame', 10);
         
+        // Validate FFmpeg path
+        if (!file_exists($ffmpegPath) || !is_executable($ffmpegPath)) {
+            $logger->err('FFmpeg is not executable or not found at path: ' . $ffmpegPath);
+            return;
+        }
+        
         // Create video frame extractor
         $videoFrameExtractor = new \VideoThumbnail\Stdlib\VideoFrameExtractor($ffmpegPath);
         $tempFileFactory = $services->get('Omeka\File\TempFileFactory');
@@ -29,13 +35,12 @@ class ExtractFrames extends AbstractJob
         // Get all media with video media types
         $dql = '
             SELECT m FROM Omeka\Entity\Media m 
-            WHERE m.mediaType = :mp4 OR m.mediaType = :mov
+            WHERE m.mediaType LIKE :video
         ';
         
         $query = $entityManager->createQuery($dql);
         $query->setParameters([
-            'mp4' => 'video/mp4',
-            'mov' => 'video/quicktime',
+            'video' => 'video/%',
         ]);
         
         $medias = $query->getResult();
@@ -53,11 +58,12 @@ class ExtractFrames extends AbstractJob
             }
             
             $mediaId = $media->getId();
+            $framePath = null;
             
             try {
                 $filePath = $media->getFilePath();
-                if (!file_exists($filePath)) {
-                    $logger->warn(sprintf('File not found for media ID %d', $mediaId));
+                if (!file_exists($filePath) || !is_readable($filePath)) {
+                    $logger->warn(sprintf('File not found or not readable for media ID %d', $mediaId));
                     $errorCount++;
                     continue;
                 }
@@ -72,7 +78,12 @@ class ExtractFrames extends AbstractJob
                 
                 // Get existing frame data or use default
                 $mediaData = $media->getData() ?: [];
-                $framePercent = $mediaData['thumbnail_frame_percentage'] ?? $defaultFramePercent;
+                $framePercent = isset($mediaData['thumbnail_frame_percentage']) ? 
+                    (float)$mediaData['thumbnail_frame_percentage'] : 
+                    (float)$defaultFramePercent;
+                
+                // Ensure frame percent is within valid range
+                $framePercent = max(0, min(100, $framePercent));
                 $frameTime = ($duration * $framePercent) / 100;
                 
                 // Extract frame
@@ -101,26 +112,48 @@ class ExtractFrames extends AbstractJob
                 $entityManager->persist($media);
                 
                 // Clean up
-                @unlink($framePath);
+                if (file_exists($framePath)) {
+                    unlink($framePath);
+                    $framePath = null;
+                }
                 
                 $successCount++;
                 
-                // Flush every 20 items to avoid memory issues
-                if ($index % 20 === 0) {
-                    $entityManager->flush();
-                    $entityManager->clear();
+                // Flush every 10 items to avoid memory issues
+                if ($index % 10 === 0) {
+                    try {
+                        $entityManager->flush();
+                        $entityManager->clear();
+                        // Reinitialize services after clearing entity manager
+                        $tempFileFactory = $services->get('Omeka\File\TempFileFactory');
+                        $fileManager = $services->get('Omeka\File\Manager');
+                    } catch (\Exception $e) {
+                        $logger->err('Error flushing entity manager: ' . $e->getMessage());
+                        // Try to continue with next batch
+                        $entityManager->clear();
+                    }
                 }
                 
                 $logger->info(sprintf('Processed media ID %d (%d of %d)', $mediaId, $index + 1, $totalMedias));
                 
             } catch (\Exception $e) {
                 $logger->err(sprintf('Error processing media ID %d: %s', $mediaId, $e->getMessage()));
+                
+                // Cleanup any temporary files
+                if ($framePath && file_exists($framePath)) {
+                    unlink($framePath);
+                }
+                
                 $errorCount++;
             }
         }
         
         // Final flush
-        $entityManager->flush();
+        try {
+            $entityManager->flush();
+        } catch (\Exception $e) {
+            $logger->err('Error during final flush: ' . $e->getMessage());
+        }
         
         $logger->info(sprintf(
             'Video thumbnail regeneration complete. Success: %d, Errors: %d, Total: %d',
