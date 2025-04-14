@@ -1,0 +1,38 @@
+<div class="video-thumbnail-tab">
+    <h3><?= $this->translate('Video Thumbnail'); ?></h3>
+    
+    <div class="field">
+        <div class="field-meta">
+            <label><?= $this->translate('Current Thumbnail'); ?></label>
+            <div class="collapsible">
+                <div class="field-description">
+                    <?= $this->translate('The thumbnail currently used for this video.'); ?>
+                </div>
+            </div>
+        </div>
+        <div class="inputs">
+            <div class="current-thumbnail">
+                <img src="<?= $this->escapeHtml($media->thumbnailUrl('medium')); ?>" alt="<?= $this->translate('Current thumbnail'); ?>">
+            </div>
+        </div>
+    </div>
+    
+    <div class="field">
+        <div class="field-meta">
+            <label><?= $this->translate('Thumbnail Frame Selection'); ?></label>
+            <div class="collapsible">
+                <div class="field-description">
+                    <?= $this->translate('Select a different frame to use as thumbnail for this video.'); ?>
+                </div>
+            </div>
+        </div>
+        <div class="inputs">
+            <a href="<?= $this->escapeHtml($this->url('admin/video-thumbnail-select-frame', ['id' => $media->id()])); ?>" class="button"><?= $this->translate('Select Frame'); ?></a>
+            <?php if ($currentFrame): ?>
+                <p class="video-thumbnail-info">
+                    <?= $this->translate('Current frame position'); ?>: <?= round($currentFrame); ?>%
+                </p>
+            <?php endif; ?>
+        </div>
+    </div>
+</div>
