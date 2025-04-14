@@ -83,7 +83,18 @@ class Module extends AbstractModule
 
         return true;
     }
-
+ 
+    public function getAutoloaderConfig()
+    {
+        return [
+            'Laminas\Loader\StandardAutoloader' => [
+                'namespaces' => [
+                    __NAMESPACE__ => __DIR__ . '/src',
+                ],
+            ],
+        ];
+    }
+    
     public function onBootstrap(MvcEvent $event)
     {
         parent::onBootstrap($event);
@@ -97,7 +108,7 @@ class Module extends AbstractModule
     public function install(ServiceLocatorInterface $serviceLocator)
     {
         $settings = $serviceLocator->get('Omeka\Settings');
-        $settings->set('videothumbnail_ffmpeg_path', '/nix/store/3zc5jbvqzrn8zmva4fx5p0nh4yy03wk4-ffmpeg-6.1.1-bin/bin/ffmpeg');
+        $settings->set('videothumbnail_ffmpeg_path', '/usr/bin/ffmpeg');
         $settings->set('videothumbnail_frames_count', 5);
         $settings->set('videothumbnail_default_frame', 10);
         
@@ -107,7 +118,7 @@ class Module extends AbstractModule
             mkdir($tempDir, 0755, true);
         }
     }
-
+     
     public function uninstall(ServiceLocatorInterface $serviceLocator)
     {
         $settings = $serviceLocator->get('Omeka\Settings');
