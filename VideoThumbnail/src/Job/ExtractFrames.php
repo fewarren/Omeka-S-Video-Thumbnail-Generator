@@ -22,10 +22,24 @@ class ExtractFrames extends AbstractJob
         $defaultFramePercent = $settings->get('videothumbnail_default_frame', 10);
         
         // Validate FFmpeg path
-        if (!file_exists($ffmpegPath) || !is_executable($ffmpegPath)) {
-            $logger->err('FFmpeg is not executable or not found at path: ' . $ffmpegPath);
-            return;
+       
+if (!file_exists($ffmpegPath) || !is_executable($ffmpegPath)) {
+    // Attempt to auto-detect FFmpeg
+    $possiblePaths = ['/usr/bin/ffmpeg', '/usr/local/bin/ffmpeg', '/opt/homebrew/bin/ffmpeg'];
+    foreach ($possiblePaths as $path) {
+        if (file_exists($path) && is_executable($path)) {
+            $ffmpegPath = $path;
+            break;
         }
+    }
+
+    if (!file_exists($ffmpegPath) || !is_executable($ffmpegPath)) {
+        $errorMsg = 'FFmpeg not found or not executable. Please check the configuration.';
+        $logger->err($errorMsg);
+        error_log('VideoThumbnail: ' . $errorMsg);
+        return;
+    }
+}
         
         // Create video frame extractor
         $videoFrameExtractor = new \VideoThumbnail\Stdlib\VideoFrameExtractor($ffmpegPath);
