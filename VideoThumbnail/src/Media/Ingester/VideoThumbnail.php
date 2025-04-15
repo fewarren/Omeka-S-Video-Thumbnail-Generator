@@ -51,19 +51,29 @@ class VideoThumbnail implements MutableIngesterInterface
     }
 
     /**
+     * Get the renderer for this ingester.
+     *
+     * @return string
+     */
+    public function getRenderer()
+    {
+        return 'videothumbnail';
+    }
+
+    /**
      * Create a new media entity from an uploaded file.
      *
-     * @param Request $request
-     * @param array $fileData
      * @param Media $media
+     * @param Request $request
      * @param ErrorStore $errorStore
      * @return bool
      */
-    public function ingest(Request $request, array $fileData, Media $media, ErrorStore $errorStore)
+    public function ingest(Media $media, Request $request, ErrorStore $errorStore)
     {
+        $fileData = $request->getValue('file');
         // This ingester leverages the standard file ingester
         $fileIngester = new \Omeka\Media\Ingester\Upload($this->tempFileFactory);
-        if (!$fileIngester->ingest($request, $fileData, $media, $errorStore)) {
+        if (!$fileIngester->ingest($media, $request, $errorStore)) {
             return false;
         }
 
@@ -148,10 +158,11 @@ class VideoThumbnail implements MutableIngesterInterface
      * Get the form elements used to edit a media after ingest.
      *
      * @param PhpRenderer $view
+     * @param \Omeka\Api\Representation\MediaRepresentation $media
      * @param array $options
      * @return string
      */
-    public function updateForm(PhpRenderer $view, array $options = [])
+    public function updateForm(PhpRenderer $view, \Omeka\Api\Representation\MediaRepresentation $media, array $options = [])
     {
         // For updates, use the standard file upload form
         return $view->formFile('file[file]', [

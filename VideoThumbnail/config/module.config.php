@@ -56,6 +56,17 @@ return [
                             ],
                         ],
                     ],
+                    'video-thumbnail-extract-frame' => [
+                        'type' => 'Segment',
+                        'options' => [
+                            'route' => '/video-thumbnail/extract-frame',
+                            'defaults' => [
+                                '__NAMESPACE__' => 'VideoThumbnail\Controller\Admin',
+                                'controller' => 'VideoThumbnail',
+                                'action' => 'extract-frame',
+                            ],
+                        ],
+                    ],
                 ],
             ],
         ],
@@ -78,10 +89,7 @@ return [
         'factories' => [
             'videothumbnail' => Service\Media\RendererFactory::class,
         ],
-        'aliases' => [
-            'video/mp4' => 'videothumbnail',
-            'video/quicktime' => 'videothumbnail',
-        ],
+        // Aliases are now registered dynamically based on the configured formats
     ],
     'js_translate_strings' => [
         'Select Frame', 
@@ -104,6 +112,11 @@ return [
     'service_manager' => [
         'factories' => [
             'VideoThumbnail\VideoFrameExtractor' => Service\VideoFrameExtractorFactory::class,
+        ],
+        'delegators' => [
+            'Omeka\File\Store\Manager' => [
+                Service\FileManagerDelegatorFactory::class,
+            ],
         ],
     ],
 ];

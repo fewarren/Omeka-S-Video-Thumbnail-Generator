@@ -26,20 +26,10 @@ $this->headScript()->appendFile($this->assetUrl('js/video-thumbnail.js', 'VideoT
         <h3><?= $this->translate('Available Frames'); ?></h3>
         <p><?= $this->translate('Click on a frame to select it as the thumbnail for this video.'); ?></p>
         
-        <div class="frames-container">
-            <?php foreach ($frames as $index => $frame): ?>
-            <div class="frame-option" data-time="<?= $this->escapeHtml($frame['time']); ?>" data-percent="<?= $this->escapeHtml($frame['percent']); ?>">
-                <div class="frame-image">
-                    <img src="<?= $this->escapeHtml($frame['image']); ?>" alt="<?= $this->translate('Frame at'); ?> <?= gmdate('H:i:s', $frame['time']); ?>">
-                </div>
-                <div class="frame-info">
-                    <span class="frame-time"><?= gmdate('H:i:s', $frame['time']); ?> (<?= round($frame['percent']); ?>%)</span>
-                    <button class="select-frame" data-media-id="<?= $this->escapeHtml($media->id()); ?>" data-position="<?= $this->escapeHtml($frame['time']); ?>">
-                        <?= $this->translate('Select'); ?>
-                    </button>
-                </div>
+        <div id="frames-container" class="frames-container">
+            <div class="loading-message">
+                <?= $this->translate('Generating thumbnails...'); ?>
             </div>
-            <?php endforeach; ?>
         </div>
     </div>
 </div>
@@ -51,6 +41,13 @@ $this->headScript()->appendFile($this->assetUrl('js/video-thumbnail.js', 'VideoT
 
 <script>
 document.addEventListener('DOMContentLoaded', function() {
-    VideoThumbnail.initFrameSelector('<?= $this->escapeJs($this->url('admin/video-thumbnail', ['action' => 'save-frame'])); ?>');
+    VideoThumbnail.initFrameSelector(
+        '<?= $this->escapeJs($this->url('admin/video-thumbnail', ['action' => 'save-frame'])); ?>',
+        '<?= $this->escapeJs($this->url('admin/video-thumbnail-extract-frame')); ?>',
+        <?= $this->escapeHtml($media->id()); ?>,
+        <?= $this->escapeHtml($framesCount); ?>,
+        <?= $this->escapeHtml($duration); ?>,
+        <?= $currentFramePercent !== null ? $this->escapeHtml($currentFramePercent) : 'null'; ?>
+    );
 });
 </script>

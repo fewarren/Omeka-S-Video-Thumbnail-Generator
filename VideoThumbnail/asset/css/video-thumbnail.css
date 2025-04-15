@@ -1,6 +1,48 @@
 /* Video Thumbnail Styles */
 
 /* Frame selector */
+
+/* Highlight the current frame */
+.frame.current-frame {
+    border: 3px solid #2271b1;
+    box-shadow: 0 0 10px rgba(34, 113, 177, 0.3);
+}
+
+.frame.current-frame::before {
+    content: '✓';
+    position: absolute;
+    top: 5px;
+    left: 5px;
+    background: #2271b1;
+    color: white;
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+    z-index: 10;
+}
+
+/* Configuration form styles */
+.configuration-section {
+    margin-bottom: 2em;
+    background: #f8f8f8;
+    padding: 1em 1.5em;
+    border-radius: 4px;
+    border: 1px solid #e0e0e0;
+}
+
+/* Multi-checkbox styling */
+.inputs label {
+    display: block;
+    margin-bottom: 5px;
+}
+
+.inputs input[type="checkbox"] {
+    margin-right: 5px;
+}
 .video-thumbnail-wrapper {
     display: flex;
     flex-wrap: wrap;

@@ -55,5 +55,17 @@ class ConfigForm extends Form
                 'id' => 'videothumbnail_default_frame',
             ],
         ]);
+        
+        $this->add([
+            'name' => 'videothumbnail_debug_mode',
+            'type' => 'Laminas\Form\Element\Checkbox',
+            'options' => [
+                'label' => 'Enable Debug Logging', // @translate
+                'info' => 'When enabled, detailed debug logs will be written to the server error log. Disable for production use.', // @translate
+            ],
+            'attributes' => [
+                'id' => 'videothumbnail_debug_mode',
+            ],
+        ]);
     }
 }
