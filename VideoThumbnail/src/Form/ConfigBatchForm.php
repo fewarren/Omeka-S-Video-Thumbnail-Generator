@@ -70,4 +70,3 @@ class ConfigBatchForm extends Form
         ]);
     }
 }
-}
