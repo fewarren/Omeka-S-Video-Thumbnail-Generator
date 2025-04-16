@@ -12,7 +12,9 @@ class ExtractVideoFrames extends AbstractPlugin
     protected $videoFrameExtractor;
     
     /**
-     * @param VideoFrameExtractor $videoFrameExtractor
+     * Constructor
+     *
+     * @param VideoFrameExtractor $videoFrameExtractor The video frame extractor instance used for frame operations.
      */
     public function __construct(VideoFrameExtractor $videoFrameExtractor)
     {
@@ -20,11 +22,11 @@ class ExtractVideoFrames extends AbstractPlugin
     }
     
     /**
-     * Extract a single frame from a video
+     * Extract a single frame from a video.
      *
-     * @param string $videoPath
-     * @param float $position
-     * @return string|null
+     * @param string $videoPath The path to the video file.
+     * @param float $position The position in the video to extract the frame, measured in seconds.
+     * @return string|null The path to the extracted frame image, or null if extraction fails.
      */
     public function extractFrame($videoPath, $position)
     {
@@ -32,11 +34,11 @@ class ExtractVideoFrames extends AbstractPlugin
     }
     
     /**
-     * Extract multiple frames from a video
+     * Extract multiple frames from a video.
      *
-     * @param string $videoPath
-     * @param int $count
-     * @return array
+     * @param string $videoPath The path to the video file.
+     * @param int $count The number of frames to extract, distributed evenly across the video's duration.
+     * @return array An array of paths to the extracted frame images.
      */
     public function extractFrames($videoPath, $count = 5)
     {
@@ -44,10 +46,10 @@ class ExtractVideoFrames extends AbstractPlugin
     }
     
     /**
-     * Get video duration
+     * Get the duration of a video.
      *
-     * @param string $videoPath
-     * @return float
+     * @param string $videoPath The path to the video file.
+     * @return float The duration of the video in seconds.
      */
     public function getVideoDuration($videoPath)
     {
