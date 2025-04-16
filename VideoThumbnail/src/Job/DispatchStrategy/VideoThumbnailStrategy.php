@@ -23,14 +23,22 @@ class VideoThumbnailStrategy implements StrategyInterface
      */
     public function dispatchJob(Job $job)
     {
-        // Instead of executing the job directly, we'll queue it for the default Omeka S job processor
-        // This delegates to the system's background job handling
-        $jobId = $job->getId();
-        
-        // Just set the job status and let Omeka's job system handle it
-        $job->setStatus(Job::STATUS_STARTING);
-        
-        // Log that we've dispatched the job
-        error_log(sprintf('VideoThumbnail job %s queued for background processing', $jobId));
+        try {
+            // Get the job ID
+            $jobId = $job->getId();
+
+            // Set the job status
+            $job->setStatus(Job::STATUS_STARTING);
+
+            // Log that we've dispatched the job
+            error_log(sprintf('VideoThumbnail job %s queued for background processing', $jobId));
+        } catch (\Exception $e) {
+            // Log the exception
+            error_log(sprintf('Error dispatching VideoThumbnail job: %s', $e->getMessage()));
+            error_log($e->getTraceAsString());
+
+            // Optionally, you can rethrow the exception or handle it as needed
+            throw $e;
+        }
     }
 }
