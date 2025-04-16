@@ -75,6 +75,21 @@ class VideoThumbnailController extends AbstractActionController
         return $view;
     }
 
+    protected function getTotalVideos()
+    {
+        // Assuming you have access to the entity manager to query the database
+        $repository = $this->entityManager->getRepository('Omeka\Entity\Media');
+        
+        // Query for the total number of videos based on supported formats
+        $supportedFormats = $this->settings->get('videothumbnail_supported_formats', ['video/mp4', 'video/quicktime']);
+        $queryBuilder = $repository->createQueryBuilder('media');
+        $queryBuilder->select('COUNT(media.id)')
+                     ->where($queryBuilder->expr()->in('media.mediaType', ':formats'))
+                     ->setParameter('formats', $supportedFormats);
+
+        return (int) $queryBuilder->getQuery()->getSingleScalarResult();
+    }
+
     public function saveFrameAction()
     {
         if (!$this->getRequest()->isPost()) {
@@ -82,125 +97,5 @@ class VideoThumbnailController extends AbstractActionController
         }
 
         $mediaId = $this->params()->fromPost('media_id');
-        $position = $this->params()->fromPost('position');
-        if (!$mediaId || !isset($position)) {
-            return new JsonModel([
-                'success' => false,
-                'message' => 'Missing required parameters',
-            ]);
-        }
-
-        if (!is_numeric($mediaId) || !is_numeric($position)) {
-            return new JsonModel([
-                'success' => false,
-                'message' => 'Invalid parameters',
-            ]);
-        }
-
-        $mediaId = (int)$mediaId;
-        $position = (float)$position;
-
-        $supportedFormats = $this->settings->get('videothumbnail_supported_formats', ['video/mp4', 'video/quicktime']);
-        try {
-            $response = $this->api()->read('media', $mediaId);
-            if (!$response) {
-                return new JsonModel([
-                    'success' => false,
-                    'message' => 'Media not found',
-                ]);
-            }
-
-            $media = $response->getContent();
-            $mediaType = $media->mediaType();
-            if (!in_array($mediaType, $supportedFormats)) {
-                return new JsonModel([
-                    'success' => false,
-                    'message' => 'This media is not a supported video format.',
-                ]);
-            }
-
-            $videoPath = $media->originalFilePath();
-            if (!file_exists($videoPath) || !is_readable($videoPath)) {
-                return new JsonModel([
-                    'success' => false,
-                    'message' => 'Video file is not accessible',
-                ]);
-            }
-
-            $ffmpegPath = $this->getValidFFmpegPath();
-            if (!$ffmpegPath) {
-                return new JsonModel([
-                    'success' => false,
-                    'message' => 'FFmpeg not found or not executable. Please configure a valid path.',
-                ]);
-            }
-
-            $videoFrameExtractor = new \VideoThumbnail\Stdlib\VideoFrameExtractor($ffmpegPath);
-            $duration = $videoFrameExtractor->getVideoDuration($videoPath);
-            if ($duration <= 0) {
-                return new JsonModel([
-                    'success' => false,
-                    'message' => 'Could not determine video duration',
-                ]);
-            }
-
-            $percentage = max(0, min(100, $position));
-            $timePosition = ($percentage / 100) * $duration;
-            $framePath = $videoFrameExtractor->extractFrame($videoPath, $timePosition);
-            if (!$framePath) {
-                return new JsonModel([
-                    'success' => false,
-                    'message' => 'Failed to extract frame',
-                ]);
-            }
-
-            $tempFileFactory = $this->tempFileFactory();
-            $tempFile = $tempFileFactory->build();
-            $tempFile->setSourceName('thumbnail.jpg');
-            $tempFile->setTempPath($framePath);
-
-            $fileManager = $this->fileManager;
-            $mediaEntity = $this->entityManager->find('Omeka\Entity\Media', $mediaId);
-            $fileManager->storeThumbnails($tempFile, $mediaEntity);
-
-            $data = $mediaEntity->getData() ?: [];
-            $data['video_duration'] = $duration;
-            $data['thumbnail_frame_time'] = $timePosition;
-            $data['thumbnail_frame_percentage'] = $percentage;
-            $mediaEntity->setData($data);
-
-            $this->entityManager->flush();
-
-            if (file_exists($framePath)) {
-                unlink($framePath);
-            }
-
-            return new JsonModel([
-                'success' => true,
-                'message' => 'Thumbnail updated successfully',
-                'thumbnailUrl' => $media->thumbnailUrl('medium'),
-            ]);
-        } catch (\Exception $e) {
-            return new JsonModel([
-                'success' => false,
-                'message' => 'An error occurred: ' . $e->getMessage(),
-            ]);
-        }
-    }
-
-    protected function getValidFFmpegPath()
-    {
-        $ffmpegPath = $this->settings->get('videothumbnail_ffmpeg_path', '/usr/bin/ffmpeg');
-        if (!file_exists($ffmpegPath) || !is_executable($ffmpegPath)) {
-            $possiblePaths = ['/usr/bin/ffmpeg', '/usr/local/bin/ffmpeg', '/opt/homebrew/bin/ffmpeg'];
-            foreach ($possiblePaths as $path) {
-                if (file_exists($path) && is_executable($path)) {
-                    $this->settings->set('videothumbnail_ffmpeg_path', $path);
-                    return $path;
-                }
-            }
-            return false;
-        }
-        return $ffmpegPath;
-    }
-}
+        $position =
+
