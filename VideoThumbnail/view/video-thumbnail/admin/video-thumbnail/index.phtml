@@ -26,8 +26,8 @@ $form->prepare();
 
 <div class="configuration-section">
     <h2><?= $this->translate('Statistics'); ?></h2>
-    <p><?= $this->translate('Total video files in the system'); ?>: <strong><?= $totalVideos ?></strong></p>
-    <p><?= $this->translate('Supported video formats'); ?>: <strong><?= $supportedFormats ?></strong></p>
+    <p><?= $this->translate('Total video files in the system'); ?>: <strong><?= $this->escapeHtml($totalVideos) ?></strong></p>
+    <p><?= $this->translate('Supported video formats'); ?>: <strong><?= $this->escapeHtml($supportedFormats) ?></strong></p>
 </div>
 
 <div class="configuration-section">
