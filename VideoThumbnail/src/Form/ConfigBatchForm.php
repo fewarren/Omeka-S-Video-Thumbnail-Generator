@@ -10,6 +10,17 @@ class ConfigBatchForm extends Form
 {
     public function init()
     {
+        // Add CSRF protection
+        $this->add([
+            'type' => 'csrf',
+            'name' => 'csrf',
+            'options' => [
+                'csrf_options' => [
+                    'timeout' => 600,
+                ],
+            ],
+        ]);
+
         $this->add([
             'name' => 'default_frame_position',
             'type' => Number::class,
@@ -58,4 +69,5 @@ class ConfigBatchForm extends Form
             ],
         ]);
     }
+}
 }
