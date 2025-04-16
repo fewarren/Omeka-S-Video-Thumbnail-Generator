@@ -5,22 +5,12 @@ use Laminas\Form\Form;
 use Laminas\Form\Element\Checkbox;
 use Laminas\Form\Element\MultiCheckbox;
 use Laminas\Form\Element\Number;
+use Laminas\InputFilter\InputFilterProviderInterface;
 
-class ConfigBatchForm extends Form
+class ConfigBatchForm extends Form implements InputFilterProviderInterface
 {
     public function init()
     {
-        // Add CSRF protection
-        $this->add([
-            'type' => 'csrf',
-            'name' => 'csrf',
-            'options' => [
-                'csrf_options' => [
-                    'timeout' => 600,
-                ],
-            ],
-        ]);
-
         $this->add([
             'name' => 'default_frame_position',
             'type' => Number::class,
@@ -54,6 +44,10 @@ class ConfigBatchForm extends Form
             ],
             'attributes' => [
                 'id' => 'supported_formats',
+                'value' => [
+                    'video/mp4', // Default to MP4
+                    'video/quicktime', // Default to MOV/QuickTime
+                ],
             ],
         ]);
 
@@ -66,7 +60,36 @@ class ConfigBatchForm extends Form
             ],
             'attributes' => [
                 'id' => 'regenerate_thumbnails',
+                'onclick' => 'return confirm("Are you sure you want to regenerate all video thumbnails? This could take a significant amount of time and resources.");',
             ],
         ]);
+    }
+
+    /**
+     * Define input filters and validation
+     *
+     * @return array
+     */
+    public function getInputFilterSpecification()
+    {
+        return [
+            'default_frame_position' => [
+                'required' => true,
+                'filters' => [
+                    ['name' => 'ToInt'],
+                ],
+                'validators' => [
+                    [
+                        'name' => 'Between',
+                        'options' => [
+                            'min' => 0,
+                            'max' => 100,
+                            'inclusive' => true,
+                            'message' => 'The default frame position must be between 0 and 100.',
+                        ],
+                    ],
+                ],
+            ],
+        ];
     }
 }
