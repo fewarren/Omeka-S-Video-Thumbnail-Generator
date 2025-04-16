@@ -1,4 +1,18 @@
 <?php
+/**
+ * Admin interface for Video Thumbnail Configuration
+ *
+ * @var \Laminas\View\Renderer\PhpRenderer $this
+ * @var \VideoThumbnail\Form\ConfigBatchForm $form
+ * @var int $totalVideos
+ * @var string $supportedFormats
+ */
+
+// Ensure form is available
+if (!isset($form)) {
+    throw new \RuntimeException('Form not available');
+}
+
 $this->headTitle($this->translate('Video Thumbnail Configuration'));
 $this->htmlElement('body')->appendAttribute('class', 'video-thumbnail configuration');
 $form->prepare();
